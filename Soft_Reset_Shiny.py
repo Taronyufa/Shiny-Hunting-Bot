@@ -83,15 +83,36 @@ def main():
                 os.remove(SCREENSHOT_PATH)
 
 
+import subprocess
+import re
+import pyautogui
+
+def get_window_rect(window_name="mGBA"):
+    try:
+        win_id = subprocess.check_output(
+            ["xdotool", "search", "--onlyvisible", "--name", window_name]
+        ).decode().strip().split('\n')[0]
+
+        subprocess.run(["xdotool", "windowactivate", win_id])
+
+        geometry = subprocess.check_output(["xdotool", "getwindowgeometry", win_id]).decode()
+        pos = re.search(r"Position:\s+(\d+),(\d+)", geometry)
+        size = re.search(r"Geometry:\s+(\d+)x(\d+)", geometry)
+
+        x, y = int(pos.group(1)), int(pos.group(2))
+        w, h = int(size.group(1)), int(size.group(2))
+
+        return x, y, w, h
+    except Exception as e:
+        print(f"Could not locate window '{window_name}': {e}")
+        return None
+
 def screenshot():
-    if windows:
-        win = windows[0]
-        win.activate()
-
-        x, y, width, height = win.left, win.top, win.width, win.height
-
-        screenshot = pyautogui.screenshot(region=(x, y, width, height))
-        screenshot.save('screenshot.png')
+    rect = get_window_rect("mGBA")
+    if rect:
+        x, y, width, height = rect
+        img = pyautogui.screenshot(region=(x, y, width, height))
+        img.save('screenshot.png')
 
 def soft_reset():
     gamepad.press_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
