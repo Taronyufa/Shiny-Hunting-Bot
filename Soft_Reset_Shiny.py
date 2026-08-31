@@ -1,13 +1,14 @@
 import time
 import vgamepad as vg
-import pygetwindow as gw
+import subprocess
+import re
 import pyautogui
 import cv2
 import numpy as np
 import os
+import sys
 
 gamepad = vg.VX360Gamepad()
-windows = gw.getWindowsWithTitle('mGBA')
 SCREENSHOT_PATH = "screenshot.png"
 SPRITE_PATH = os.path.join("shiny sprites", "charmander.png")
 THRESHOLD = 22.5
@@ -235,4 +236,22 @@ def is_shiny(screenshot_path, shiny_sprite_path, threshold=THRESHOLD):
     return distance < threshold, distance
 
 if __name__ == "__main__":
-    main()
+
+    while(True):
+
+        print("\nChoose an option:\n\t1. Take the screenshot\n\t2. Crop the screenshot\n\t3. Compute the distance\n\t4. Close the program\n\t5. Start the loop\n")
+        x = input("Insert the number: ")
+
+        match x:
+            case "1":
+                screenshot()
+            case "2":
+                img = cv2.imread("screenshoot.png")
+                crop = get_sprite_crop(img)
+                cv2.imwrite("debug_crop.png",crop)
+            case "3":
+                is_shiny(SCREENSHOT_PATH, SPRITE_PATH)
+            case "4":
+                os._exit(0)
+            case "5":
+                main()
