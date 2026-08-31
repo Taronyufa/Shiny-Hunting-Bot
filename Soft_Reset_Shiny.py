@@ -6,8 +6,8 @@ import cv2
 import os
 
 # Python Classes
-from Controller import Controller
-import Screenshot as Sc
+from utilities.Controller import Controller
+from utilities import Screenshot as Sc
 
 gamepad = vg.VX360Gamepad()
 SCREENSHOT_PATH = "screenshot.png"
@@ -168,6 +168,7 @@ if __name__ == "__main__":
             case "3":
                 is_shiny(SCREENSHOT_PATH, SPRITE_PATH)
             case "4":
+                # noinspection PyProtectedMember
                 os._exit(0)
             case "5":
                 main()

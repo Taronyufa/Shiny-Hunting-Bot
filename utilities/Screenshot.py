@@ -10,7 +10,7 @@ def get_window_rect(window_name):
             ["xdotool", "search", "--onlyvisible", "--name", window_name]
         ).decode().strip().split('\n')[0]
 
-        subprocess.run(["xdotool", "windowactivate", win_id])
+        subprocess.run(["xdotool", "windowraise", win_id])
 
         geometry = subprocess.check_output(["xdotool", "getwindowgeometry", win_id]).decode()
         pos = re.search(r"Position:\s+(\d+),(\d+)", geometry)
