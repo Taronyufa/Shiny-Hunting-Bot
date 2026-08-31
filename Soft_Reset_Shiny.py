@@ -1,12 +1,16 @@
-import time
+# Python libraries
 import vgamepad as vg
-import subprocess
-import re
-import pyautogui
-import cv2
 import numpy as np
+import subprocess
+import pyautogui
+import time
+import cv2
+import re
 import os
 import sys
+
+# Python Classes
+import Controller as Ct
 
 gamepad = vg.VX360Gamepad()
 SCREENSHOT_PATH = "screenshot.png"
@@ -22,49 +26,49 @@ def main():
 
     time.sleep(3)
 
-    while(True):
+    while True:
 
-        soft_reset()
+        Ct.soft_reset(gamepad)
 
         # Open the game
         time.sleep(3.5)
-        press_A()
+        Ct.press_a(gamepad)
 
         time.sleep(.2)
-        press_A()
+        Ct.press_a(gamepad)
 
         time.sleep(.2)
-        press_A()
+        Ct.press_a(gamepad)
 
         time.sleep(3)
-        press_A()
+        Ct.press_a(gamepad)
 
         time.sleep(1)
-        press_B()
+        Ct.press_b(gamepad)
 
         time.sleep(2.4)
-        press_A()
+        Ct.press_a(gamepad)
 
         time.sleep(.8)
-        press_A()
+        Ct.press_a(gamepad)
 
         time.sleep(1)
-        press_A()
+        Ct.press_a(gamepad)
 
         time.sleep(.6)
-        press_A()
+        Ct.press_a(gamepad)
 
         time.sleep(.9)
-        press_A()
+        Ct.press_a(gamepad)
 
         time.sleep(4.2)
-        press_B()
+        Ct.press_b(gamepad)
 
         time.sleep(2)
-        press_A()
+        Ct.press_a(gamepad)
 
         time.sleep(3.4)
-        summary()
+        Ct.summary(gamepad)
 
         time.sleep(1.5)
 
@@ -72,10 +76,10 @@ def main():
 
         result, distance = is_shiny(SCREENSHOT_PATH, SPRITE_PATH)
 
-        if(result):
+        if result:
             break
         else:
-            if(distance > 80):
+            if distance > 80:
                 failed += 1
             else:
                 i += 1
@@ -83,10 +87,6 @@ def main():
             if os.path.exists(SCREENSHOT_PATH):
                 os.remove(SCREENSHOT_PATH)
 
-
-import subprocess
-import re
-import pyautogui
 
 def get_window_rect(window_name="mGBA"):
     try:
@@ -108,6 +108,7 @@ def get_window_rect(window_name="mGBA"):
         print(f"Could not locate window '{window_name}': {e}")
         return None
 
+
 def screenshot():
     rect = get_window_rect("mGBA")
     if rect:
@@ -115,66 +116,6 @@ def screenshot():
         img = pyautogui.screenshot(region=(x, y, width, height))
         img.save('screenshot.png')
 
-def soft_reset():
-    gamepad.press_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
-    gamepad.press_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
-    gamepad.press_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_START)
-    gamepad.press_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_BACK)
-
-    gamepad.update()
-    time.sleep(.1)
-
-    gamepad.release_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
-    gamepad.release_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
-    gamepad.release_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_START)
-    gamepad.release_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_BACK)
-
-    gamepad.update()
-
-def summary():
-
-    press_START()
-
-    time.sleep(.2)
-    press_A()
-
-    time.sleep(.9)
-    press_A()
-
-    time.sleep(.3)
-    press_A()
-
-def press_A():
-    gamepad.press_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
-    gamepad.update()
-    time.sleep(.1)
-
-    gamepad.release_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
-    gamepad.update()
-
-def press_B():
-    gamepad.press_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
-    gamepad.update()
-    time.sleep(.1)
-
-    gamepad.release_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
-    gamepad.update()
-
-def press_START():
-    gamepad.press_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_START)
-    gamepad.update()
-    time.sleep(.1)
-
-    gamepad.release_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_START)
-    gamepad.update()
-
-def press_BACK():
-    gamepad.press_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_BACK)
-    gamepad.update()
-    time.sleep(.1)
-
-    gamepad.release_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_BACK)
-    gamepad.update()
 
 def get_average_color_screenshot(img, gray_tol=10, gray_value_thresh=150):
 
@@ -192,6 +133,7 @@ def get_average_color_screenshot(img, gray_tol=10, gray_value_thresh=150):
         return None
     return pixels.mean(axis=0)
 
+
 def get_average_color(img):
     if img.shape[2] == 4:
         alpha = img[:, :, 3]
@@ -206,11 +148,13 @@ def get_average_color(img):
         return None
     return pixels.mean(axis=0)
 
+
 def get_sprite_crop(screenshot):
     h, w = screenshot.shape[:2]
     x1, y1 = int(.15 * w), int(0.35 * h)
     x2, y2 = int(0.35 * w), int(0.50 * h)
     return screenshot[y1:y2, x1:x2]
+
 
 def is_shiny(screenshot_path, shiny_sprite_path, threshold=THRESHOLD):
     screenshot = cv2.imread(screenshot_path, cv2.IMREAD_UNCHANGED)
@@ -235,11 +179,13 @@ def is_shiny(screenshot_path, shiny_sprite_path, threshold=THRESHOLD):
 
     return distance < threshold, distance
 
+
 if __name__ == "__main__":
 
-    while(True):
+    while True:
 
-        print("\nChoose an option:\n\t1. Take the screenshot\n\t2. Crop the screenshot\n\t3. Compute the distance\n\t4. Close the program\n\t5. Start the loop\n")
+        print("\nChoose an option:\n\t1. Take the screenshot\n\t2. Crop the screenshot\n\t3. Compute the "
+              "distance\n\t4. Close the program\n\t5. Start the loop\n")
         x = input("Insert the number: ")
 
         match x:
