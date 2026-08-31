@@ -1,16 +1,13 @@
 # Python libraries
 import vgamepad as vg
 import numpy as np
-import subprocess
-import pyautogui
 import time
 import cv2
-import re
 import os
-import sys
 
 # Python Classes
-import Controller as Ct
+import ImageProcessing as Im
+import Screenshot as Sc
 
 gamepad = vg.VX360Gamepad()
 SCREENSHOT_PATH = "screenshot.png"
@@ -22,57 +19,59 @@ def main():
     i = 458
     failed = 12
 
+    gp = Controller(gamepad)
+
     print("Virtual controller connected. Starting in 3 seconds...")
 
     time.sleep(3)
 
     while True:
 
-        Ct.soft_reset(gamepad)
+        gp.soft_reset()
 
         # Open the game
         time.sleep(3.5)
-        Ct.press_a(gamepad)
+        gp.press_a()
 
         time.sleep(.2)
-        Ct.press_a(gamepad)
+        gp.press_a()
 
         time.sleep(.2)
-        Ct.press_a(gamepad)
+        gp.press_a()
 
         time.sleep(3)
-        Ct.press_a(gamepad)
+        gp.press_a()
 
         time.sleep(1)
-        Ct.press_b(gamepad)
+        gp.press_b()
 
         time.sleep(2.4)
-        Ct.press_a(gamepad)
+        gp.press_a()
 
         time.sleep(.8)
-        Ct.press_a(gamepad)
+        gp.press_a()
 
         time.sleep(1)
-        Ct.press_a(gamepad)
+        gp.press_a()
 
         time.sleep(.6)
-        Ct.press_a(gamepad)
+        gp.press_a()
 
         time.sleep(.9)
-        Ct.press_a(gamepad)
+        gp.press_a()
 
         time.sleep(4.2)
-        Ct.press_b(gamepad)
+        gp.press_b()
 
         time.sleep(2)
-        Ct.press_a(gamepad)
+        gp.press_a()
 
         time.sleep(3.4)
-        Ct.summary(gamepad)
+        gp.summary()
 
         time.sleep(1.5)
 
-        screenshot()
+        Sc.screenshot_windows()
 
         result, distance = is_shiny(SCREENSHOT_PATH, SPRITE_PATH)
 
@@ -86,35 +85,6 @@ def main():
             print(f'{result} on try {i} with {failed} failed encounters\n\n')
             if os.path.exists(SCREENSHOT_PATH):
                 os.remove(SCREENSHOT_PATH)
-
-
-def get_window_rect(window_name="mGBA"):
-    try:
-        win_id = subprocess.check_output(
-            ["xdotool", "search", "--onlyvisible", "--name", window_name]
-        ).decode().strip().split('\n')[0]
-
-        subprocess.run(["xdotool", "windowactivate", win_id])
-
-        geometry = subprocess.check_output(["xdotool", "getwindowgeometry", win_id]).decode()
-        pos = re.search(r"Position:\s+(\d+),(\d+)", geometry)
-        size = re.search(r"Geometry:\s+(\d+)x(\d+)", geometry)
-
-        x, y = int(pos.group(1)), int(pos.group(2))
-        w, h = int(size.group(1)), int(size.group(2))
-
-        return x, y, w, h
-    except Exception as e:
-        print(f"Could not locate window '{window_name}': {e}")
-        return None
-
-
-def screenshot():
-    rect = get_window_rect("mGBA")
-    if rect:
-        x, y, width, height = rect
-        img = pyautogui.screenshot(region=(x, y, width, height))
-        img.save('screenshot.png')
 
 
 def get_average_color_screenshot(img, gray_tol=10, gray_value_thresh=150):
@@ -190,7 +160,7 @@ if __name__ == "__main__":
 
         match x:
             case "1":
-                screenshot()
+                Sc.screenshot_windows()
             case "2":
                 img = cv2.imread("screenshoot.png")
                 crop = get_sprite_crop(img)
