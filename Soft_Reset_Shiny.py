@@ -4,6 +4,7 @@ import numpy as np
 import threading
 import time
 import cv2
+import csv
 import os
 
 # Python Classes
@@ -22,8 +23,13 @@ def listen_for_stop(stop_event):
 
 
 def main():
-    i = 458
-    failed = 12
+
+    with open(os.path.join("csv", "stats.csv"), "r") as f:
+        reader = csv.reader(f)
+        row = next(reader)
+
+        i = int(row[0])
+        failed = int(row[1])
 
     gp = Controller(gamepad)
 
@@ -96,7 +102,10 @@ def main():
             if os.path.exists(SCREENSHOT_PATH):
                 os.remove(SCREENSHOT_PATH)
 
-    # TODO: Add function to save the number of encounters and failed encounters in a csv file
+    stats = [i, failed]
+    with open(os.path.join("csv", "stats.csv"), "w") as f:
+        writer = csv.writer(f)
+        writer.writerow(stats)
 
 
 def get_average_color_screenshot(img, gray_tol=10, gray_value_thresh=150):
