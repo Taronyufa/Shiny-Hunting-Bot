@@ -6,7 +6,7 @@ import cv2
 import os
 
 # Python Classes
-import ImageProcessing as Im
+from Controller import Controller
 import Screenshot as Sc
 
 gamepad = vg.VX360Gamepad()
