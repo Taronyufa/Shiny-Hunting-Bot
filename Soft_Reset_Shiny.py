@@ -17,12 +17,10 @@ SPRITE_PATH = os.path.join("shiny sprites", "charmander.png")
 THRESHOLD = 22.5
 
 
-def listen_for_stop(stop_event):
-    input("Press ENTER to stop the loop\n")
-    stop_event.set()
-
-
 def main():
+
+    routine = get_routine()
+
 
     with open(os.path.join("csv", "stats.csv"), "r") as f:
         reader = csv.reader(f)
@@ -43,47 +41,18 @@ def main():
 
     while not stop_event.is_set():
 
-        gp.soft_reset()
-
-        # Open the game
-        time.sleep(3.5)
-        gp.press_a()
-
-        time.sleep(.2)
-        gp.press_a()
-
-        time.sleep(.2)
-        gp.press_a()
-
-        time.sleep(3)
-        gp.press_a()
-
-        time.sleep(1)
-        gp.press_b()
-
-        time.sleep(2.4)
-        gp.press_a()
-
-        time.sleep(.8)
-        gp.press_a()
-
-        time.sleep(1)
-        gp.press_a()
-
-        time.sleep(.6)
-        gp.press_a()
-
-        time.sleep(.9)
-        gp.press_a()
-
-        time.sleep(4.2)
-        gp.press_b()
-
-        time.sleep(2)
-        gp.press_a()
-
-        time.sleep(3.4)
-        gp.summary()
+        for elem in routine:
+            match elem:
+                case "a":
+                    gp.press_a()
+                case "b":
+                    gp.press_b()
+                case "reset":
+                    gp.soft_reset()
+                case "summary":
+                    gp.summary()
+                case _:
+                    time.sleep(float(elem))
 
         time.sleep(1.5)
 
@@ -107,6 +76,38 @@ def main():
         writer = csv.writer(f)
         writer.writerow(stats)
 
+
+def listen_for_stop(stop_event):
+    input("Press ENTER to stop the loop\n")
+    stop_event.set()
+
+
+def get_routine():
+    dictionary = {}
+
+    with open(os.path.join("csv", "routines.csv"), "r") as f:
+        routines = csv.reader(f)
+        next(routines)
+        for row in routines:
+            dictionary[row[0]] = row[1]
+
+    routine = -1
+    while isinstance(routine, int):
+        print("\nChoose which routine to use:")
+
+        i = 1
+        for keys in dictionary.keys():
+            print(f'\t{i}. {keys}')
+            i += 1
+
+        routine = int(input()) - 1
+        if routine >= 0 and routine < len(dictionary):
+            routine = list(dictionary.values())[routine]
+        else:
+            print("The number does not correspond to any routine")
+
+    routine = routine.split()
+    return routine
 
 def get_average_color_screenshot(img, gray_tol=10, gray_value_thresh=150):
 
