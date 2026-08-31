@@ -1,6 +1,7 @@
 # Python libraries
 import vgamepad as vg
 import numpy as np
+import threading
 import time
 import cv2
 import os
@@ -15,17 +16,26 @@ SPRITE_PATH = os.path.join("shiny sprites", "charmander.png")
 THRESHOLD = 22.5
 
 
+def listen_for_stop(stop_event):
+    input("Press ENTER to stop the loop\n")
+    stop_event.set()
+
+
 def main():
     i = 458
     failed = 12
 
     gp = Controller(gamepad)
 
+    stop_event = threading.Event()
+    listener_thread = threading.Thread(target=listen_for_stop, args=(stop_event,), daemon=True)
+    listener_thread.start()
+
     print("Virtual controller connected. Starting in 3 seconds...")
 
     time.sleep(3)
 
-    while True:
+    while not stop_event.is_set():
 
         gp.soft_reset()
 
@@ -85,6 +95,8 @@ def main():
             print(f'{result} on try {i} with {failed} failed encounters\n\n')
             if os.path.exists(SCREENSHOT_PATH):
                 os.remove(SCREENSHOT_PATH)
+
+    # TODO: Add function to save the number of encounters and failed encounters in a csv file
 
 
 def get_average_color_screenshot(img, gray_tol=10, gray_value_thresh=150):
@@ -172,3 +184,5 @@ if __name__ == "__main__":
                 os._exit(0)
             case "5":
                 main()
+                # noinspection PyProtectedMember
+                os._exit(0)
