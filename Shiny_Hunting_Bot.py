@@ -61,7 +61,7 @@ def main():
         print(f'{result} on try {i}\n\n')
 
         if result:
-            Tg.send_message()
+            Tg.send_message(i)
             break
 
     with open(os.path.join("csv", "stats.csv"), "w") as f:

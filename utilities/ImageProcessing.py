@@ -1,13 +1,8 @@
 from PIL import Image
 import numpy as np
 import cv2
-import os
 
-
-THRESHOLD = 40
-SHINY_PATH = os.path.join("shiny sprites", "charmander.png")
-SCREENSHOT_PATH = "screenshot.png"
-CROP_PATH = "crop.png"
+from Constant import *
 
 
 def find_pokemon_summary():
