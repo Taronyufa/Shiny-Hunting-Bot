@@ -9,6 +9,7 @@ import os
 from utilities.Controller import Controller
 from utilities import Screenshot as Sc
 from utilities import ImageProcessing as Ip
+from utilities import Telegram as Tg
 
 gamepad = vg.VX360Gamepad()
 
@@ -60,6 +61,7 @@ def main():
         print(f'{result} on try {i}\n\n')
 
         if result:
+            Tg.send_message()
             break
 
     with open(os.path.join("csv", "stats.csv"), "w") as f:
