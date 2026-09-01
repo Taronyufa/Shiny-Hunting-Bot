@@ -23,7 +23,6 @@ def main():
         row = next(reader)
 
         i = int(row[0])
-        failed = int(row[1])
 
     gp = Controller(gamepad)
 
@@ -56,15 +55,16 @@ def main():
 
         result = Ip.is_shiny()
 
-        print(f'{result} on try {i} with {failed} failed encounters\n\n')
+        i += 1
+
+        print(f'{result} on try {i}\n\n')
 
         if result:
             break
 
-    stats = [i, failed]
     with open(os.path.join("csv", "stats.csv"), "w") as f:
         writer = csv.writer(f)
-        writer.writerow(stats)
+        writer.writerow([i])
 
 
 def listen_for_stop(stop_event):
