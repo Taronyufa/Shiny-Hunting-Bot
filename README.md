@@ -52,5 +52,5 @@ Whenever I find the time, here's what I'd like to tackle next:
 3. Build a new crop function that works across all wild encounter dioramas — ideally one that can also tell the summary screen apart from a wild encounter, though that part could be solved in simpler ways too.
 4. Track more metrics about each shiny found, like how long it took to find it.
 5. Improve the Telegram bot so I can check its current state and see some stats from the last shiny encounter.
-6. Still on the fence about whether the bot should attempt to catch wild Pokémon on its own — there are so many possible scenarios during a catch that I haven't settled on an approach yet.
-7. And lastly, make it work for multiple istances of the game to speed things up
+6. Still on the fence about whether the bot should attempt to catch wild Pokémon on its own — there are so many possible scenarios during a catch that I haven't settled on an approach yet. ( I may make some controls to be able to catch the pokemon from the telegram bot )
+8. And lastly, make it work for multiple istances of the game to speed things up
