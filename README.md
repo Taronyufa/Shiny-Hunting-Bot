@@ -86,7 +86,5 @@ Whenever I find the time, here's what I'd like to tackle next:
 3. Track more metrics about each shiny found, like how long it took to find it.
 4. Improve the Telegram bot so I can check its current state and see some stats from the last shiny encounter.
 5. Improve the battle-check function, since it occasionally throws false positives.
-6. Turn the program into a CLI command for easier day-to-day use.
-7. Create a script to download all the dependencies, ideally creating a venv.
-8. Writing the ImageProcessing file on a faster language ( Either C or Rust )
-9. Having the bot working with more instances of the game running simultaneously
+6. Writing the ImageProcessing file on a faster language ( Either C or Rust )
+7. Having the bot working with more instances of the game running simultaneously
