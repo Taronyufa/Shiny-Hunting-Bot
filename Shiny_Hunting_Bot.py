@@ -148,12 +148,34 @@ def get_routine():
     routine = routine.split()
     return routine
 
+def addRoutine():
+    routine_name = input("Insert the name of the routine: ").strip()
+
+    print("Write 'end' to stop")
+    commands = []
+
+    while True:
+        temp = input("Insert the command without spaces: ").strip()
+        if temp == "end":
+            break
+        if temp:
+            commands.append(temp)
+
+    commands_str = " ".join(commands)
+
+    os.makedirs("csv", exist_ok=True)
+
+    with open(os.path.join("csv", "routines.csv"), "a") as f:
+        writer = csv.writer(f)
+        writer.writerow([routine_name, commands_str])
+
 if __name__ == "__main__":
 
     while True:
 
-        print("\nChoose an option:\n\t1. Take the screenshot\n\t2. Crop the screenshot\n\t3. Compute the "
-              "distance\n\t4. Close the program\n\t5. Start the loop\n")
+        print("\nChoose an option:\n\t1. Take the screenshot\n\t2. Crop the pokemon ( summary )\n\t3. Compute the "
+              "distance\n\t4. Crop the text box ( fight )\n\t5. Check if a battle is ongoing\n\t6. Compute the number of white pixels"
+              "\n\t7. Add a new routine\n\t8. Exit the program\n\t9. Start a new loop")
         x = input("Insert the number: ")
 
         match x:
@@ -164,9 +186,17 @@ if __name__ == "__main__":
             case "3":
                 print(Ip.is_shiny_summary(0))
             case "4":
+                Ip.mask_textbox_white()
+            case "5":
+                print(Ip.is_battle())
+            case "6":
+                print(Ip.is_shiny_fight())
+            case "7":
+                addRoutine()
+            case "8":
                 # noinspection PyProtectedMember
                 os._exit(0)
-            case "5":
+            case "9":
                 main()
                 # noinspection PyProtectedMember
                 os._exit(0)
