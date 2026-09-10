@@ -59,6 +59,7 @@ def fight_commands(gamepad):
         await update.message.reply_text(text="Command sent")
 
     async def run(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        gp.press_a()
         time.sleep(3)
         gp.run()
         time.sleep(1)

@@ -104,6 +104,8 @@ def main():
                     time.sleep(float(elem[7:]) + random.uniform(0, 1))
                 case _ if "sleep" in elem:
                     time.sleep(float(elem[6:]))
+                case _:
+                    pass
 
         if stop:
             break

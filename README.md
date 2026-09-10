@@ -89,3 +89,4 @@ Whenever I find the time, here's what I'd like to tackle next:
 6. Turn the program into a CLI command for easier day-to-day use.
 7. Create a script to download all the dependencies, ideally creating a venv.
 8. Writing the ImageProcessing file on a faster language ( Either C or Rust )
+9. Having the bot working with more instances of the game running simultaneously
