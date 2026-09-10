@@ -33,7 +33,7 @@ def main():
                 case "1":
                     Sc.screenshot_windows()
                 case "2":
-                    Ip.crop_pokemon()
+                    Ip.crop_pokemon_summary()
                 case "3":
                     print(Ip.is_shiny_summary(0))
                 case "4":
@@ -43,7 +43,7 @@ def main():
                 case "6":
                     print(Ip.is_shiny_fight())
                 case "7":
-                    addRoutine()
+                    add_routine()
                 case "8":
                     # noinspection PyProtectedMember
                     os._exit(0)
@@ -100,14 +100,14 @@ def loop(routine):
                 case "down":
                     gp.press_down()
                 case "fight_check":
-                    Sc.screenshot_windows()
+                    Sc.screenshot_linux()
                     if Ip.is_battle():
 
                         if os.path.exists(SCREENSHOT_PATH):
                             os.remove(SCREENSHOT_PATH)
 
                         time.sleep(2.8)
-                        Sc.screenshot_windows()
+                        Sc.screenshot_linux()
 
                         i += 1
                         result = Ip.is_shiny_fight()
@@ -130,7 +130,7 @@ def loop(routine):
                     gp.summary(int(elem[8:]))
 
                     time.sleep(1.5)
-                    Sc.screenshot_windows()
+                    Sc.screenshot_linux()
                     result = Ip.is_shiny_summary()
 
                     i += 1
@@ -195,7 +195,7 @@ def get_routine(n):
     routine = routine.split()
     return routine
 
-def addRoutine():
+def add_routine():
     routine_name = input("Insert the name of the routine: ").strip()
 
     print("Write 'end' to stop")

@@ -102,7 +102,7 @@ def median(photo_path):
 def color_distance(c1, c2):
     return np.linalg.norm(np.array(c1) - np.array(c2))
 
-def is_shiny_summary(encounter_type):
+def is_shiny_summary():
 
     crop_pokemon_summary()
     distance = color_distance(median(CROP_PATH), median(SHINY_PATH))
