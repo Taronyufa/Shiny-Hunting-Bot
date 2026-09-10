@@ -1,0 +1,23 @@
+[project]
+name = "shiny-hunting-bot"
+version = "0.1.0"
+requires-python = ">=3.9"
+dependencies = [
+    "vgamepad",
+    "python-telegram-bot",
+    "python-dotenv",
+    "telegram-send",
+    "PyGetWindow",
+    "PyAutoGUI",
+    "scipy",
+    "Pillow",
+    "numpy",
+    "opencv-python",
+]
+
+[project.scripts]
+shinyhunt = "shiny_hunting_bot.main:main"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"

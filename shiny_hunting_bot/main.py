@@ -1,29 +1,67 @@
 # Python libraries
-import random
-
 import vgamepad as vg
 import threading
+import argparse
+import random
 import time
 import csv
 import os
 
+
 # Python Classes
-from utilities.Constant import SCREENSHOT_PATH
-from utilities.Controller import Controller
-from utilities import Screenshot as Sc
-from utilities import ImageProcessing as Ip
-from utilities import Telegram as Tg
+from shiny_hunting_bot.utilities.Constant import SCREENSHOT_PATH
+from shiny_hunting_bot.utilities.Controller import Controller
+from shiny_hunting_bot.utilities import ImageProcessing as Ip
+from shiny_hunting_bot.utilities import Screenshot as Sc
+from shiny_hunting_bot.utilities import Telegram as Tg
 
 gamepad = vg.VX360Gamepad()
 
 
 def main():
+    args = parse_arg()
 
-    routine = get_routine()
+    if args.debug:
+        while True:
+
+            print("\nChoose an option:\n\t1. Take the screenshot\n\t2. Crop the pokemon ( summary )\n\t3. Compute the "
+                  "distance\n\t4. Crop the text box ( fight )\n\t5. Check if a battle is ongoing\n\t6. Compute the number of white pixels"
+                  "\n\t7. Add a new routine\n\t8. Exit the program\n")
+            x = input("Insert the number: ")
+
+            match x:
+                case "1":
+                    Sc.screenshot_windows()
+                case "2":
+                    Ip.crop_pokemon()
+                case "3":
+                    print(Ip.is_shiny_summary(0))
+                case "4":
+                    Ip.mask_textbox_white()
+                case "5":
+                    print(Ip.is_battle())
+                case "6":
+                    print(Ip.is_shiny_fight())
+                case "7":
+                    addRoutine()
+                case "8":
+                    # noinspection PyProtectedMember
+                    os._exit(0)
+
+    elif args.showroutines:
+        toString_routines()
+
+    elif args.routine is not None:
+        loop(arg.routine)
+
+
+def loop(routine):
+
     stop = False
+    routine = get_routine(routine)
 
 
-    with open(os.path.join("csv", "stats.csv"), "r") as f:
+    with open(os.path.join("../csv", "stats.csv"), "r") as f:
         reader = csv.reader(f)
         row = next(reader)
 
@@ -111,7 +149,7 @@ def main():
             break
 
 
-    with open(os.path.join("csv", "stats.csv"), "w") as f:
+    with open(os.path.join("../csv", "stats.csv"), "w") as f:
         writer = csv.writer(f)
         writer.writerow([i])
 
@@ -121,10 +159,10 @@ def listen_for_stop(stop_event):
     stop_event.set()
 
 
-def get_routine():
+def toString_routines():
     dictionary = {}
 
-    with open(os.path.join("csv", "routines.csv"), "r") as f:
+    with open(os.path.join("../csv", "routines.csv"), "r") as f:
         routines = csv.reader(f)
         next(routines)
         for row in routines:
@@ -139,11 +177,20 @@ def get_routine():
             print(f'\t{i}. {keys}')
             i += 1
 
-        routine = int(input()) - 1
-        if 0 <= routine < len(dictionary):
-            routine = list(dictionary.values())[routine]
-        else:
-            print("The number does not correspond to any routine")
+def get_routine(n):
+    dictionary = {}
+
+    with open(os.path.join("../csv", "routines.csv"), "r") as f:
+        routines = csv.reader(f)
+        next(routines)
+        for row in routines:
+            dictionary[row[0]] = row[1]
+
+    if 0 <= n < len(dictionary):
+        routine = list(dictionary.values())[n]
+    else:
+        print("The number does not correspond to any routine")
+        os._exit(0)
 
     routine = routine.split()
     return routine
@@ -163,40 +210,27 @@ def addRoutine():
 
     commands_str = " ".join(commands)
 
-    os.makedirs("csv", exist_ok=True)
+    os.makedirs("../csv", exist_ok=True)
 
-    with open(os.path.join("csv", "routines.csv"), "a") as f:
+    with open(os.path.join("../csv", "routines.csv"), "a") as f:
         writer = csv.writer(f)
         writer.writerow([routine_name, commands_str])
 
+def parse_arg():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("-d", "--debug")
+    # parser.add_argument("-g", "--game", required=True) for later support to more games
+    parser.add_argument("-r", "--routine", type=int)
+
+    parser.add_argument("--showroutines")
+
+    args = parser.parse_args()
+
+    if not (args.debug or args.routine or args.showroutines):
+        parser.error("at least one of -d/--debug, -r/--routine, --showroutines is required")
+
+    return args
+
 if __name__ == "__main__":
-
-    while True:
-
-        print("\nChoose an option:\n\t1. Take the screenshot\n\t2. Crop the pokemon ( summary )\n\t3. Compute the "
-              "distance\n\t4. Crop the text box ( fight )\n\t5. Check if a battle is ongoing\n\t6. Compute the number of white pixels"
-              "\n\t7. Add a new routine\n\t8. Exit the program\n\t9. Start a new loop")
-        x = input("Insert the number: ")
-
-        match x:
-            case "1":
-                Sc.screenshot_windows()
-            case "2":
-                Ip.crop_pokemon()
-            case "3":
-                print(Ip.is_shiny_summary(0))
-            case "4":
-                Ip.mask_textbox_white()
-            case "5":
-                print(Ip.is_battle())
-            case "6":
-                print(Ip.is_shiny_fight())
-            case "7":
-                addRoutine()
-            case "8":
-                # noinspection PyProtectedMember
-                os._exit(0)
-            case "9":
-                main()
-                # noinspection PyProtectedMember
-                os._exit(0)
+    main()

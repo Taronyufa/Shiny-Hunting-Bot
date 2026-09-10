@@ -1,4 +1,4 @@
-import pygetwindow as gw
+# import pygetwindow as gw
 import subprocess
 import pyautogui
 import re

@@ -1,11 +1,10 @@
-import os.path
-
+from scipy import ndimage
 from PIL import Image
 import numpy as np
+import os.path
 import cv2
-from scipy import ndimage
 
-from utilities.Constant import *
+from shiny_hunting_bot.utilities.Constant import *
 
 
 def find_pokemon_summary():
