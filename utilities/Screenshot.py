@@ -38,7 +38,6 @@ def screenshot_windows():
 
     if windows:
         win = windows[0]
-        win.activate()
 
         x, y, width, height = win.left, win.top, win.width, win.height
 

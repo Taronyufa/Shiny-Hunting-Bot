@@ -1,8 +1,11 @@
+import os.path
+
 from PIL import Image
 import numpy as np
 import cv2
+from scipy import ndimage
 
-from Constant import *
+from utilities.Constant import *
 
 
 def find_pokemon_summary():
@@ -58,7 +61,7 @@ def find_pokemon_summary():
 
         return bx, by, bw, bh, image
 
-def crop_pokemon():
+def crop_pokemon_summary():
 
     bx, by, bw, bh, image = find_pokemon_summary()
 
@@ -100,8 +103,9 @@ def median(photo_path):
 def color_distance(c1, c2):
     return np.linalg.norm(np.array(c1) - np.array(c2))
 
-def is_shiny():
-    crop_pokemon()
+def is_shiny_summary(encounter_type):
+
+    crop_pokemon_summary()
     distance = color_distance(median(CROP_PATH), median(SHINY_PATH))
     if distance > THRESHOLD:
         if os.path.exists(CROP_PATH) and os.path.exists(SCREENSHOT_PATH):
@@ -110,5 +114,122 @@ def is_shiny():
         print(f'Distance = {distance}')
         return False
     else:
+        print(f'Distance = {distance}')
         return True
 
+def is_battle() -> bool:
+    img = cv2.imread(SCREENSHOT_PATH)
+    if img is None:
+        return False
+
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    row_means = gray.mean(axis=1)
+    col_means = gray.mean(axis=0)
+
+    brightness_threshold = 15
+
+    valid_y = np.where(row_means > brightness_threshold)[0]
+    valid_x = np.where(col_means > brightness_threshold)[0]
+
+    if len(valid_y) == 0 or len(valid_x) == 0:
+        return False
+
+    y_segments = np.split(valid_y, np.where(np.diff(valid_y) > 1)[0] + 1)
+    x_segments = np.split(valid_x, np.where(np.diff(valid_x) > 1)[0] + 1)
+
+    gy1, gy2 = max(y_segments, key=len)[[0, -1]]
+    gx1, gx2 = max(x_segments, key=len)[[0, -1]]
+
+    gba_screen = img[gy1:gy2, gx1:gx2]
+    if gba_screen.shape[0] == 0 or gba_screen.shape[1] == 0:
+        return False
+
+    gba = cv2.resize(gba_screen, (240, 160), interpolation=cv2.INTER_NEAREST)
+
+    top_left_roi = gba[10:50, 10:110]
+    white_card_pixels = np.sum(np.all(top_left_roi > 200, axis=2))
+
+    hsv_top = cv2.cvtColor(top_left_roi, cv2.COLOR_BGR2HSV)
+    green_hp = cv2.inRange(hsv_top, np.array([35, 100, 100]), np.array([85, 255, 255]))
+    yellow_hp = cv2.inRange(hsv_top, np.array([15, 100, 100]), np.array([35, 255, 255]))
+    red_hp = cv2.inRange(hsv_top, np.array([0, 100, 100]), np.array([10, 255, 255]))
+    hp_bar_pixels = (
+        cv2.countNonZero(green_hp) + cv2.countNonZero(yellow_hp) + cv2.countNonZero(red_hp)
+    )
+
+    bottom_roi = gba[112:155, 10:230]
+    blue_bg_mask = cv2.inRange(bottom_roi, np.array([70, 50, 20]), np.array([125, 100, 70]))
+    blue_pixels = cv2.countNonZero(blue_bg_mask)
+    gold_border_mask = cv2.inRange(bottom_roi, np.array([60, 150, 200]), np.array([140, 230, 255]))
+    gold_pixels = cv2.countNonZero(gold_border_mask)
+
+    has_enemy_card = (white_card_pixels > 80) and (hp_bar_pixels > 3)
+    has_battle_frame = (blue_pixels > 300) and (gold_pixels > 15)
+
+    return has_enemy_card or (white_card_pixels > 50 and has_battle_frame)
+
+def crop_pokemon_textbox():
+    img = Image.open(SCREENSHOT_PATH).convert("RGB")
+    w, h = img.size
+    arr = np.asarray(img)
+
+    gray = arr.mean(axis=2)
+    row_means = gray.mean(axis=1)
+    col_means = gray.mean(axis=0)
+    brightness_threshold = 15
+
+    valid_y = np.where(row_means > brightness_threshold)[0]
+    valid_x = np.where(col_means > brightness_threshold)[0]
+    if len(valid_y) == 0 or len(valid_x) == 0:
+        return
+
+    y_segments = np.split(valid_y, np.where(np.diff(valid_y) > 1)[0] + 1)
+    x_segments = np.split(valid_x, np.where(np.diff(valid_x) > 1)[0] + 1)
+    gy1, gy2 = max(y_segments, key=len)[[0, -1]]
+    gx1, gx2 = max(x_segments, key=len)[[0, -1]]
+    gw, gh = gx2 - gx1, gy2 - gy1
+    if gw <= 0 or gh <= 0:
+        return
+
+    box = (gx1, gy1 + int(gh * 0.71), gx2, gy2)
+
+    return img.crop(box)
+
+def mask_textbox_white():
+
+    img = crop_pokemon_textbox()
+    arr = np.asarray(img)
+    h, w, _ = arr.shape
+
+    white_mask = np.all(arr > 200, axis=2)
+
+    labeled, num = ndimage.label(white_mask)
+    objects = ndimage.find_objects(labeled)
+
+    keep_labels = []
+    for i, sl in enumerate(objects, start=1):
+        if sl is None:
+            continue
+        comp_h = sl[0].stop - sl[0].start
+        comp_w = sl[1].stop - sl[1].start
+        if comp_w > w * 0.5 or comp_h > h * 0.5:
+            continue
+        keep_labels.append(i)
+
+    text_only = np.isin(labeled, keep_labels) & white_mask
+
+    out = (text_only.astype(np.uint8) * 255)
+    return Image.fromarray(out)
+
+def is_shiny_fight() -> bool:
+    img = mask_textbox_white().convert("RGB")
+    arr = np.asarray(img)
+
+    white_mask = np.all(arr > 200, axis=2)
+    white_count = int(white_mask.sum())
+
+    if(white_count >= 400) and os.path.exists(SCREENSHOT_PATH):
+        os.remove(SCREENSHOT_PATH)
+
+    print(f'Number of White Pixel = {white_count}')
+    return white_count <= 400

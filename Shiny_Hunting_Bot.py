@@ -1,4 +1,6 @@
 # Python libraries
+import random
+
 import vgamepad as vg
 import threading
 import time
@@ -6,6 +8,7 @@ import csv
 import os
 
 # Python Classes
+from utilities.Constant import SCREENSHOT_PATH
 from utilities.Controller import Controller
 from utilities import Screenshot as Sc
 from utilities import ImageProcessing as Ip
@@ -17,6 +20,7 @@ gamepad = vg.VX360Gamepad()
 def main():
 
     routine = get_routine()
+    stop = False
 
 
     with open(os.path.join("csv", "stats.csv"), "r") as f:
@@ -35,6 +39,10 @@ def main():
 
     time.sleep(3)
 
+    if routine[0] == "hold_b":
+        routine.remove("hold_b")
+        gp.hold_b()
+
     while not stop_event.is_set():
 
         for elem in routine:
@@ -45,24 +53,61 @@ def main():
                     gp.press_b()
                 case "reset":
                     gp.soft_reset()
-                case "summary":
-                    gp.summary()
-                case _:
-                    time.sleep(float(elem))
+                case "left":
+                    gp.press_left()
+                case "right":
+                    gp.press_right()
+                case "up":
+                    gp.press_up()
+                case "down":
+                    gp.press_down()
+                case "fight_check":
+                    Sc.screenshot_windows()
+                    if Ip.is_battle():
 
-        time.sleep(1.5)
+                        if os.path.exists(SCREENSHOT_PATH):
+                            os.remove(SCREENSHOT_PATH)
 
-        Sc.screenshot_windows()
+                        time.sleep(2.8)
+                        Sc.screenshot_windows()
 
-        result = Ip.is_shiny()
+                        i += 1
+                        result = Ip.is_shiny_fight()
+                        print(f'{result} on try {i}\n\n')
 
-        i += 1
+                        if result:
+                            Tg.send_message(i)
+                            stop = Tg.fight_commands(gamepad)
 
-        print(f'{result} on try {i}\n\n')
+                        else:
+                            time.sleep(1)
+                            gp.press_a()
+                            time.sleep(3)
+                            gp.run()
+                            time.sleep(1)
+                            gp.press_a()
+                            time.sleep(1.5)
 
-        if result:
-            Tg.send_message(i)
+                case _ if "summary" in elem:
+                    gp.summary(int(elem[8:]))
+
+                    time.sleep(1.5)
+                    Sc.screenshot_windows()
+                    result = Ip.is_shiny_summary()
+
+                    i += 1
+                    print(f'{result} on try {i}\n\n')
+                    if result:
+                        Tg.send_message(i)
+                        stop = True
+                case _ if "random" in elem:
+                    time.sleep(float(elem[7:]) + random.uniform(0, 1))
+                case _ if "sleep" in elem:
+                    time.sleep(float(elem[6:]))
+
+        if stop:
             break
+
 
     with open(os.path.join("csv", "stats.csv"), "w") as f:
         writer = csv.writer(f)
@@ -115,7 +160,7 @@ if __name__ == "__main__":
             case "2":
                 Ip.crop_pokemon()
             case "3":
-                print(Ip.is_shiny())
+                print(Ip.is_shiny_summary(0))
             case "4":
                 # noinspection PyProtectedMember
                 os._exit(0)
