@@ -52,7 +52,7 @@ def main():
         toString_routines()
 
     elif args.routine is not None:
-        loop(arg.routine)
+        loop(args.routine - 1)
 
 
 def loop(routine):
@@ -61,7 +61,7 @@ def loop(routine):
     routine = get_routine(routine)
 
 
-    with open(os.path.join("../csv", "stats.csv"), "r") as f:
+    with open(os.path.join("shiny_hunting_bot/config", "stats.csv"), "r") as f:
         reader = csv.reader(f)
         row = next(reader)
 
@@ -149,7 +149,7 @@ def loop(routine):
             break
 
 
-    with open(os.path.join("../csv", "stats.csv"), "w") as f:
+    with open(os.path.join("shiny_hunting_bot/config", "stats.csv"), "w") as f:
         writer = csv.writer(f)
         writer.writerow([i])
 
@@ -162,7 +162,7 @@ def listen_for_stop(stop_event):
 def toString_routines():
     dictionary = {}
 
-    with open(os.path.join("../csv", "routines.csv"), "r") as f:
+    with open(os.path.join("shiny_hunting_bot/config", "routines.csv"), "r") as f:
         routines = csv.reader(f)
         next(routines)
         for row in routines:
@@ -180,7 +180,7 @@ def toString_routines():
 def get_routine(n):
     dictionary = {}
 
-    with open(os.path.join("../csv", "routines.csv"), "r") as f:
+    with open(os.path.join("shiny_hunting_bot/config", "routines.csv"), "r") as f:
         routines = csv.reader(f)
         next(routines)
         for row in routines:
@@ -210,9 +210,7 @@ def addRoutine():
 
     commands_str = " ".join(commands)
 
-    os.makedirs("../csv", exist_ok=True)
-
-    with open(os.path.join("../csv", "routines.csv"), "a") as f:
+    with open(os.path.join("shiny_hunting_bot/config", "routines.csv"), "a") as f:
         writer = csv.writer(f)
         writer.writerow([routine_name, commands_str])
 
@@ -227,7 +225,7 @@ def parse_arg():
 
     args = parser.parse_args()
 
-    if not (args.debug or args.routine or args.showroutines):
+    if not (args.debug or args.routine is not None or args.showroutines):
         parser.error("at least one of -d/--debug, -r/--routine, --showroutines is required")
 
     return args
