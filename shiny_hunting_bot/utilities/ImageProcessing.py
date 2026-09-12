@@ -58,11 +58,16 @@ def find_pokemon_summary():
         bw += 10
         bh += 10
 
-        return bx, by, bw, bh, image
+        return bx, by, bw, bh, image, True
+    else:
+        return 0, 0, 0, 0, 0, False
 
 def crop_pokemon_summary():
 
-    bx, by, bw, bh, image = find_pokemon_summary()
+    bx, by, bw, bh, image, check = find_pokemon_summary()
+
+    if not check:
+        return False
 
     pokemon_crop = image[by:by + bh, bx:bx + bw]
     crop_gray = cv2.cvtColor(pokemon_crop, cv2.COLOR_BGR2GRAY)
@@ -80,6 +85,7 @@ def crop_pokemon_summary():
 
     cv2.imwrite('crop.png', pokemon_bgra)
 
+    return True
 
 def median(photo_path):
     with Image.open(photo_path) as img:
@@ -104,7 +110,8 @@ def color_distance(c1, c2):
 
 def is_shiny_summary():
 
-    crop_pokemon_summary()
+    if not crop_pokemon_summary():
+        return False
     distance = color_distance(median(CROP_PATH), median(SHINY_PATH))
     if distance > THRESHOLD:
         if os.path.exists(CROP_PATH) and os.path.exists(SCREENSHOT_PATH):
