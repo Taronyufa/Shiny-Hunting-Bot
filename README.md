@@ -16,19 +16,34 @@ Down the line, I'd like to extend it to work with a webcam pointed at a DS, sinc
 
 ## Install
 
-I use PyCharm, so I don't manage dependencies manually — it takes care of that for me. The one manual step is setting up the Telegram bot: run `telegram-send --configure` and follow the prompts.
+I use PyCharm, so I don't manage dependencies manually — it takes care of that for me.
+
+To make things as simple as possible, I turned it into a CLI command: clone the repo, then from the main folder run `pip install -e .` and all the dependencies will install into a venv automatically.
+
+The one manual step is setting up the Telegram bot: run `telegram-send --configure` and follow the prompts.
 
 On Linux, the gamepad library will raise a permissions-denied error unless you run `sudo chmod 666 /dev/uinput` first.
+
+## Run the Bot
+
+From the main folder, run `source .venv/bin/activate` to activate the venv.
+
+Right now there are only three commands available
+- `shinyhunt -r n`: runs the routine numbered `n` from `routines.csv`
+- `shinyhunt --showroutines`: lists all the routines defined in `routines.csv`
+- `shinyhunt -d`: runs the program with some debug options, handy for testing or adding a new routine without having to open the CSV directly
 
 ## How It Works
 
 ### Controller
 
-Inputs are sent to the emulator through the `vgamepad` library. Since the library has no built-in way to do a fast click, I wrote my own function to emulate one.
+Inputs are sent to the emulator through the `vgamepad` library. Since the library has no built-in way to do a fast click, I wrote my own functions to emulate one.
 
 ### Screenshot
 
 The screenshot module has two separate capture methods: one for Windows and one for Ubuntu. This is because I develop on my Windows laptop but run the bot on an Ubuntu VM hosted on a server.
+
+Using the Windows screenshot function on Linux will raise an error. To fix it, every instance of `screenshot_windows()` needs to be changed to `screenshot_linux()`.
 
 ### Telegram
 
@@ -44,8 +59,6 @@ For anything more involved, there's a separate function that pauses the main thr
 - `screen`: send a screenshot of the game
 - `resume`: stop listening for Telegram commands and let the main thread resume
 - `stop`: stop the bot entirely
-
-### Image Processing
 
 ### Image Processing
 
@@ -81,10 +94,11 @@ For wild encounters, I'd advise sticking to only two of the four directions — 
  
 Whenever I find the time, here's what I'd like to tackle next:
  
-1. Design a 3D-printable mount for my 3DS with a built-in webcam stand, so I don't have to keep repositioning it by hand.
-2. Expand the set of routine commands to allow for more precise control.
-3. Track more metrics about each shiny found, like how long it took to find it.
-4. Improve the Telegram bot so I can check its current state and see some stats from the last shiny encounter.
-5. Improve the battle-check function, since it occasionally throws false positives.
+1. Design a 3D-printable mount for my 3DS with a built-in webcam stand, so I don't have to keep repositioning it by hand
+2. Expand the set of routine commands to allow for more precise control
+3. Track more metrics about each shiny found, like how long it took to find it
+4. Improve the Telegram bot so I can check its current state and see some stats from the last shiny encounter
+5. Improve the battle-check function, since it occasionally throws false positives ( I'm thinking of a second check on the sprite )
 6. Writing the ImageProcessing file on a faster language ( Either C or Rust )
-7. Having the bot working with more instances of the game running simultaneously
+7. Having the bot working with more instances of the game running simultaneously ( not sure if it's feasible )
+8. Put together an actual release, so it's more user-friendly than having to clone the repo and activate the venv

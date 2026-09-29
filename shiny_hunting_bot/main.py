@@ -120,7 +120,7 @@ def loop(routine):
                         else:
                             time.sleep(1)
                             gp.press_a()
-                            time.sleep(3)
+                            time.sleep(4)
                             gp.run()
                             time.sleep(1)
                             gp.press_a()
