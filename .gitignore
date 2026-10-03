@@ -223,5 +223,5 @@ __marimo__/
 # pngs
 *.png
 
-*.xml
+.idea/*.xml
 *.iml
