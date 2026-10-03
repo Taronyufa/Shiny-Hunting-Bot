@@ -1,6 +1,8 @@
 # Python libraries
 import vgamepad as vg
+import pandas as pd
 import threading
+import datetime
 import argparse
 import random
 import time
@@ -9,7 +11,7 @@ import os
 
 
 # Python Classes
-from shiny_hunting_bot.utilities.Constant import SCREENSHOT_PATH
+from shiny_hunting_bot.utilities.Constant import SCREENSHOT_PATH, STATS_PATH
 from shiny_hunting_bot.utilities.Controller import Controller
 from shiny_hunting_bot.utilities import ImageProcessing as Ip
 from shiny_hunting_bot.utilities import Screenshot as Sc
@@ -57,15 +59,12 @@ def main():
 
 def loop(routine):
 
-    stop = False
+    stop, shiny = False, False
     routine = get_routine(routine)
 
 
-    with open(os.path.join("shiny_hunting_bot/config", "stats.csv"), "r") as f:
-        reader = csv.reader(f)
-        row = next(reader)
-
-        i = int(row[0])
+    last_row = pd.read_csv(STATS_PATH).tail(1)
+    i = int(last_row.iat[0, 0])
 
     gp = Controller(gamepad)
 
@@ -115,7 +114,11 @@ def loop(routine):
 
                         if result:
                             Tg.send_message(i)
-                            stop = Tg.fight_commands(gamepad)
+                            stop, shiny = Tg.fight_commands(gamepad)
+
+                        if shiny:
+                            update_csv(i)
+                            i = 0
 
                         else:
                             time.sleep(1)
@@ -137,7 +140,12 @@ def loop(routine):
                     print(f'{result} on try {i}\n\n')
                     if result:
                         Tg.send_message(i)
+
+                        update_csv(i)
+                        i = 0
+
                         stop = True
+
                 case _ if "random" in elem:
                     time.sleep(float(elem[7:]) + random.uniform(0, 1))
                 case _ if "sleep" in elem:
@@ -149,15 +157,17 @@ def loop(routine):
             break
 
 
-    with open(os.path.join("shiny_hunting_bot/config", "stats.csv"), "w") as f:
-        writer = csv.writer(f)
-        writer.writerow([i])
-
-
 def listen_for_stop(stop_event):
     input("Press ENTER to stop the loop\n")
     stop_event.set()
 
+def update_csv( index ):
+    df = pd.read_csv(STATS_PATH)
+
+    df.iloc[-1, [0, 2]] = [index, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")]
+    df.loc[len(df)] = [0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), ""]
+
+    df.to_csv(STATS_PATH, index=False)
 
 def toString_routines():
     dictionary = {}

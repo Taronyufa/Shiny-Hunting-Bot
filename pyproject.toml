@@ -13,6 +13,8 @@ dependencies = [
     "Pillow",
     "numpy",
     "opencv-python",
+    "pandas",
+    "datetime",
 ]
 
 [project.scripts]

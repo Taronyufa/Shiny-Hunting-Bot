@@ -19,6 +19,7 @@ def fight_commands(gamepad):
     telegram_bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
 
     stop = False
+    shiny = True
 
     async def a(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         if os.path.exists(SCREENSHOT_PATH):
@@ -63,6 +64,9 @@ def fight_commands(gamepad):
         time.sleep(1)
         gp.press_a()
         time.sleep(1.5)
+
+        shiny = False
+
         await update.message.reply_text(text="Command sent")
 
     async def screen(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -99,7 +103,7 @@ def fight_commands(gamepad):
     # Blocks main thread till context.application.stop_running() is called
     app.run_polling()
 
-    return stop
+    return stop, shiny
 
 def send_message(index):
     with open(SCREENSHOT_PATH, "rb") as file:

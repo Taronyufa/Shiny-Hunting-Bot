@@ -112,7 +112,7 @@ def is_shiny_summary():
 
     if not crop_pokemon_summary():
         return False
-    distance = color_distance(median(CROP_PATH), median(SHINY_PATH))
+    distance = color_distance(median(CROP_PATH), median(SPRITES_PATH))
     if distance > THRESHOLD:
         if os.path.exists(CROP_PATH) and os.path.exists(SCREENSHOT_PATH):
             os.remove(CROP_PATH)
