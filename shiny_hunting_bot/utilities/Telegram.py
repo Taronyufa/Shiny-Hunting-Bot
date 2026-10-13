@@ -22,31 +22,19 @@ def fight_commands(gamepad):
     shiny = True
 
     async def a(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-        if os.path.exists(SCREENSHOT_PATH):
-            os.remove(SCREENSHOT_PATH)
         gp.press_a()
-        Sc.screenshot_windows()
         await update.message.reply_text(text="Command sent")
 
     async def b(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-        if os.path.exists(SCREENSHOT_PATH):
-            os.remove(SCREENSHOT_PATH)
         gp.press_b()
-        Sc.screenshot_windows()
         await update.message.reply_text(text="Command sent")
 
     async def up(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-        if os.path.exists(SCREENSHOT_PATH):
-            os.remove(SCREENSHOT_PATH)
         gp.press_up()
-        Sc.screenshot_windows()
         await update.message.reply_text(text="Command sent")
 
     async def down(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-        if os.path.exists(SCREENSHOT_PATH):
-            os.remove(SCREENSHOT_PATH)
         gp.press_down()
-        Sc.screenshot_windows()
         await update.message.reply_text(text="Command sent")
 
     async def right(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -65,6 +53,7 @@ def fight_commands(gamepad):
         gp.press_a()
         time.sleep(1.5)
 
+        nonlocal shiny
         shiny = False
 
         await update.message.reply_text(text="Command sent")
@@ -72,7 +61,7 @@ def fight_commands(gamepad):
     async def screen(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         if os.path.exists(SCREENSHOT_PATH):
             os.remove(SCREENSHOT_PATH)
-        Sc.screenshot_windows()
+        Sc.screenshot_linux()
         await update.message.reply_photo(photo = SCREENSHOT_PATH)
 
     async def resume(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

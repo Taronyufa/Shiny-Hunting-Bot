@@ -33,7 +33,7 @@ def main():
 
             match x:
                 case "1":
-                    Sc.screenshot_windows()
+                    Sc.screenshot_linux()
                 case "2":
                     Ip.crop_pokemon_summary()
                 case "3":
@@ -163,6 +163,8 @@ def listen_for_stop(stop_event):
 
 def update_csv( index ):
     df = pd.read_csv(STATS_PATH)
+
+    df[df.columns[2]] = df[df.columns[2]].astype(str)
 
     df.iloc[-1, [0, 2]] = [index, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")]
     df.loc[len(df)] = [0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), ""]
